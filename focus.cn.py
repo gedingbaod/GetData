@@ -7,7 +7,9 @@ import json
 import pandas as pd
 import openpyxl
 
-from repository import save_to_json
+from dao_file import save_to_json
+from dao_mongo import connect_mongodb, query_coll_with_field, query_coll_all, query_coll_with_like
+from get_news import get_page_news
 
 cookies = {
     '87a4bcbf0b1ea517_gr_session_id': '0424be0b-0f5c-4007-9f04-edc8377b6a08',
@@ -44,12 +46,11 @@ headers = {
 }
 
 
-# get area name and route
-def getPageInfo(page):
-    url = f'https://graphql.focus.cn/alias/query?name=/baseApi/authorNewsList&param=uid%3D99000193248%26pageNo%3D{page}&graphProjectId=7'
+def get_week_info(url):
+    url = 'https:' + url
     response = requests.get(url)
-
     if response.status_code == 200:
+        html_text1 = etree.HTML(response.text)
         # 获取JSON数据
         data = response.json()
         return data
@@ -58,28 +59,63 @@ def getPageInfo(page):
         print(f'Failed to retrieve data: {response.status_code}')
 
 
-def getWeekData(word):
-    # 1.获取json数据，并入pageList列表
-    pageList = []
-    for i in range(1, 2):
-        data = getPageInfo(i)
-        pageList.extend(data['data']['userDetails']['newsListByAuthorUid']['list'])
+def parse_title_data(title):
+    # 创建一个空字典
+    week_object = {}
+    # 使用正则表达式匹配所需的变量
+    match = re.search(r"【杭州成交周报】第(\d+)周新房成交(\d+)套,二手房(\d+)套,涨价房源(\d+)套", title)
+    if match:
+        week = match.group(1)
+        new = match.group(2)
+        resold = match.group(3)
+        rise = match.group(4)
+        week_object['week'] = week
+        week_object['new'] = new
+        week_object['resold'] = resold
+        week_object['rise'] = rise
+        # print(f"N【杭州成交周报】第{week}周新房成交{new}套,二手房{resold}套,涨价房源{rise}套")
+    else:
+        print("No match found.")
+    return week_object
 
-    # 这里先把数据存到本地，这样下次就不用再请求了
-    save_to_json(pageList)
+
+def parse_pages(pages):
+    """
+    从列表中找出需要的数据存入weekList列表
+    :param pages:
+    :return:
+    """
+    week_list = []
+    for page in pages:
+        week_data = parse_title_data(page['title'])
+        week_list.append(week_data)
+        # print(page)
+    return week_list
 
 
-    # 1.从列表中找出需要的数据存入weekList列表
-    weekList = []
-    dfInfos = pd.DataFrame()
-    for item in pageList:
-        title = item['title']
-        if word in title:
-            weekList.append(item)
+def get_week_data(db):
+    # cursor = query_coll_with_field(db, 'page_info', 'citySuffix', 'hz')
+    result_condition = {'_id': 0, 'citySuffix': 1, 'url': 1, 'title': 1}
+    pages = query_coll_with_like(db, 'page_info', 'title', '【杭州成交周报】', result_condition)
 
-    # 3.获取url中对应的数据
+    week_list = parse_pages(pages)
 
-    print(weekList)
+    # 存入Excel
+    weeks = []
+    news = []
+    resolds = []
+    rises = []
+    for item in week_list:
+        if item:
+            weeks.append(item['week'])
+            news.append(item['new'])
+            resolds.append(item['resold'])
+            rises.append(item['rise'])
+    df_week = pd.DataFrame(
+            dict(zip(['第周', '新房成交', '二手房成交', '涨价房源'],
+                     [weeks, news, resolds, rises])))
+    df_week.to_excel(f'杭州成交周报.xlsx', index=False)
+    print('generation finished')
 
 
 def print_hi(name):
@@ -90,6 +126,8 @@ def print_hi(name):
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     print_hi('PyCharm')
-    getWeekData('杭州成交周报')
+    # mongodb连接
+    db = connect_mongodb("192.168.0.188", "real_estate", "root", "123456")
+    # get_page_news(db)
+    get_week_data(db)
     pass
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
