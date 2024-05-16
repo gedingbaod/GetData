@@ -1,5 +1,7 @@
 # -*-coding:utf-8-*-
 import requests
+from lxml import etree
+
 from dao_mongo import save_to_collection
 
 """
@@ -14,6 +16,24 @@ def get_page_info(page):
     response = requests.get(url)
 
     if response.status_code == 200:
+        # 获取JSON数据
+        data = response.json()
+        return data
+        # 现在可以解析和使用data变量中的JSON数据
+    else:
+        print(f'Failed to retrieve data: {response.status_code}')
+
+
+def get_api_info(url):
+    """
+    从API中获取JSON护具
+    :param url:
+    :return:
+    """
+    url = 'https:' + url
+    response = requests.get(url)
+    if response.status_code == 200:
+        html_text1 = etree.HTML(response.text)
         # 获取JSON数据
         data = response.json()
         return data
