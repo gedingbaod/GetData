@@ -59,7 +59,7 @@ def query_coll_with_field(db, coll_name, field_name, field_value, result_conditi
     return cursor
 
 
-def query_coll_with_like(db, coll_name, field_name, field_value, result_condition):
+def query_coll_with_like(db, coll_name, field_name, field_value, result_condition=None, sort_field=None, sort_asc=None):
     """
     返回cursor
     可以通过list获取集合：docs = list(cursor)
@@ -69,9 +69,13 @@ def query_coll_with_like(db, coll_name, field_name, field_value, result_conditio
     query = {field_name: {'$regex': field_value}}
     # 如果指定返回字段
     if result_condition:
-        cursor = collection.find(query, result_condition)
+        if sort_field:
+            cursor = collection.find(query, result_condition).sort(sort_field, sort_asc)
+        else:
+            cursor = collection.find(query, result_condition)
     else:
         cursor = collection.find(query)
+        # .sort('publishTimeForShow', 1)
     pages = list(cursor)
     return pages
 

@@ -1,5 +1,6 @@
 # -*-coding:utf-8-*-
 import requests
+import json
 from lxml import etree
 
 from dao_mongo import save_to_collection
@@ -46,7 +47,8 @@ def get_page_news(db):
     # 1.获取json数据，并入pageList列表
     page_list = []
     # 20240514时间点共1369页
-    for i in range(1, 1370):
+    # 20240531时间点共42页
+    for i in range(1, 42):
         data = get_page_info(i)
         page_list.extend(data['data']['userDetails']['newsListByAuthorUid']['list'])
 
