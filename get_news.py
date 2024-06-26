@@ -3,7 +3,7 @@ import requests
 import json
 from lxml import etree
 
-from dao_mongo import save_to_collection
+from dao_mongo import save_to_collection, save_to_collection_batch
 
 """
 根据API接口获取json数据，并存入mongodb中
@@ -48,9 +48,11 @@ def get_page_news(db):
     page_list = []
     # 20240514时间点共1369页
     # 20240531时间点共42页
-    for i in range(1, 42):
+    for i in range(3, 108):
         data = get_page_info(i)
         page_list.extend(data['data']['userDetails']['newsListByAuthorUid']['list'])
 
-    # 存入数据库中
+    # 单个存入数据库中，可以保证循序插入
     save_to_collection(db, 'page_info', page_list)
+    # 批量存入数据库中
+    #save_to_collection_batch(db, 'page_info', page_list)
