@@ -58,6 +58,6 @@ if __name__ == '__main__':
     # mongodb连接
     db = connect_mongodb("192.168.0.188", "real_estate", "root", "123456")
     # get_page_news(db)
-    get_week_data(db)
+    # get_week_data(db)
     get_daily_data(db)
     pass

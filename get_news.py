@@ -48,7 +48,7 @@ def get_page_news(db):
     page_list = []
     # 20240514时间点共1369页
     # 20240531时间点共42页
-    for i in range(3, 17):
+    for i in range(3, 43):
         data = get_page_info(i)
         page_list.extend(data['data']['userDetails']['newsListByAuthorUid']['list'])
 
