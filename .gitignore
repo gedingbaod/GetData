@@ -6,3 +6,7 @@
 *.iml
 *.ipr
 
+__pycache__/dao_file.cpython-312.pyc
+__pycache__/dao_mongo.cpython-312.pyc
+__pycache__/get_news.cpython-312.pyc
+__pycache__/parse_data.cpython-312.pyc

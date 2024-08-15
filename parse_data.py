@@ -102,9 +102,56 @@ def parse_daily_title_data(page):
         daily_object['new'] = new
         daily_object['resold'] = resold
         daily_object['rise'] = rise
-        # print(f"N【杭州成交周报】第{week}周新房成交{new}套,二手房{resold}套,涨价房源{rise}套")
     else:
-        print(f"No match found at {publish}  {title}")
+        #print(f"No match found at {publish}  {title}")
+        match = re.search(r"【杭州成交日报】(\d+)月(\d+)日涨价房源(\d+)套", title)
+        if match:
+            month = match.group(1)
+            day = match.group(2)
+            rise = match.group(3)
+            daily_object['month'] = month
+            daily_object['day'] = day
+            daily_object['new'] = '0'
+            daily_object['resold'] = '0'
+            daily_object['rise'] = rise
+        else:
+            match = re.search(r"【杭州成交日报】(\d+)月(\d+)日新房成交(\d+)套;涨价房源(\d+)套", title)
+            if match:
+                month = match.group(1)
+                day = match.group(2)
+                new = match.group(3)
+                rise = match.group(4)
+                daily_object['month'] = month
+                daily_object['day'] = day
+                daily_object['new'] = new
+                daily_object['resold'] = '0'
+                daily_object['rise'] = rise
+            else:
+                match = re.search(r"【杭州成交日报】(\d+)月(\d+)日二手房(\d+)套;涨价房源(\d+)套", title)
+                if match:
+                    month = match.group(1)
+                    day = match.group(2)
+                    resold = match.group(3)
+                    rise = match.group(4)
+                    daily_object['month'] = month
+                    daily_object['day'] = day
+                    daily_object['new'] = '0'
+                    daily_object['resold'] = resold
+                    daily_object['rise'] = rise  
+                else:
+                    match = re.search(r"【杭州成交日报】(\d+)月(\d+)日新房成交(\d+)套、二手房(\d+)套", title)
+                    if match:
+                        month = match.group(1)
+                        day = match.group(2)
+                        new = match.group(3)
+                        resold = match.group(4)
+                        daily_object['month'] = month
+                        daily_object['day'] = day
+                        daily_object['new'] = new
+                        daily_object['resold'] = resold
+                        daily_object['rise'] = '0'
+                    else:
+                        print(f"No match found at {publish}  {title}")
     return daily_object
 
 

@@ -1,5 +1,6 @@
 # coding:utf-8
 from pymongo import MongoClient
+from urllib.parse import quote_plus
 
 
 # # 连接到MongoDB，这里假设您的MongoDB服务运行在本地，默认端口为27017
@@ -11,13 +12,14 @@ from pymongo import MongoClient
 # # 选择或创建一个数据库，例如'demo_db'
 # db = client['real_estate']
 
-def connect_mongodb(host, db, user, password):
+def connect_mongodb(host, dbname, user, password):
     # 连接到MongoDB，这里假设您的MongoDB服务运行在本地，默认端口为27017
-    client = MongoClient(host, 27017)
+    uri = "mongodb://%s:%s@%s:27017/real_estate" % (
+                quote_plus(user), quote_plus(password), host)
+    # client = MongoClient("mongodb://root:123456@192.168.2.153:27017/real_estate")
+    client = MongoClient(uri)
     # 连接系统默认数据库admin
-    db = client[db]
-    # 连接数据库,账号密码认证，需要在real_estate数据库中创建User：root
-    db.authenticate(user, password)
+    db = client[dbname]
     return db
 
 
