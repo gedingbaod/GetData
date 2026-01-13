@@ -1,5 +1,6 @@
 # coding=utf-8
 
+
 import requests
 from lxml import etree
 import re
@@ -7,7 +8,7 @@ import json
 import pandas as pd
 import openpyxl
 
-from dao_file import save_to_json
+# from dao_file import save_to_json
 from dao_mongo import connect_mongodb, query_coll_with_field, query_coll_all, query_coll_with_like
 from get_news import get_page_news
 from parse_data import get_week_data, get_daily_data
@@ -56,8 +57,8 @@ def print_hi(name):
 if __name__ == '__main__':
     print_hi('PyCharm')
     # mongodb连接
-    db = connect_mongodb("192.168.2.153", "real_estate", "root", "123456")
-    # get_page_news(db)
+    db = connect_mongodb("172.29.253.223", "estate_db", "estateUser", "123456")
+    get_page_news(db)
     # get_week_data(db)
-    get_daily_data(db)
+    # get_daily_data(db)
     pass
